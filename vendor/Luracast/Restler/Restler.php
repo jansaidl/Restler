@@ -254,7 +254,7 @@ class Restler extends EventDispatcher
             $this->validate();
 			if(!$this->apiClassInstance) {
 				if ($this->apiClassInitCallback) {
-					$this->apiClassInstance = $this->apiClassInitCallback($this->apiMethodInfo->className);
+					$this->apiClassInstance = call_user_func_array($this->apiClassInitCallback, array($this->apiMethodInfo->className));
 				}
 				if(!$this->apiClassInstance) {
 					$this->apiClassInstance

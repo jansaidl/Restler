@@ -151,6 +151,13 @@ class Restler extends EventDispatcher
     protected $filterObjects = array();
 
 
+	/**
+	 * init class callback function
+	 *
+	 * @var null
+	 */
+	protected $apiClassInitCallback = NULL;
+
     // ==================================================================
     //
     // Protected variables
@@ -245,10 +252,15 @@ class Restler extends EventDispatcher
             $this->authenticate();
             $this->postAuthFilter();
             $this->validate();
-            if(!$this->apiClassInstance) {
-                $this->apiClassInstance
-                    = Util::initialize($this->apiMethodInfo->className);
-            }
+			if(!$this->apiClassInstance) {
+				if ($this->apiClassInitCallback) {
+					$this->apiClassInstance = $this->apiClassInitCallback($this->apiMethodInfo->className);
+				}
+				if(!$this->apiClassInstance) {
+					$this->apiClassInstance
+						= Util::initialize($this->apiMethodInfo->className);
+				}
+			}
             $this->preCall();
             $this->call();
             $this->compose();
@@ -299,7 +311,16 @@ class Restler extends EventDispatcher
         }
     }
 
-    /**
+	/**
+	 * Call this method and pass callback function to initialize api class instance
+	 * @param $callback
+	 */
+	public function setApiClassInitCallback($callback) {
+			$this->apiClassInitCallback = $callback;
+	}
+
+
+	/**
      * Call this method and pass all the formats that should be  supported by
      * the API Server. Accepts multiple parameters
      *
